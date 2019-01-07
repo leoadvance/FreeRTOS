@@ -73,7 +73,7 @@ typedef struct QueuePointers
 typedef struct SemaphoreData
 {
 	TaskHandle_t xMutexHolder;		 /*< The handle of the task that holds the mutex. */
-	UBaseType_t uxRecursiveCallCount;/*< Maintains a count of the number of times a recursive mutex has been recursively 'taken' when the structure is used as a mutex. */
+	UBaseType_t uxRecursiveCallCount;/*< Maintains a count of the number of times a recursive mutex has been recursively 'taken' when the structure is used as a mutex. 记录互斥量递归次数 */
 } SemaphoreData_t;
 
 /* Semaphores do not actually store or copy data, so have an item size of
@@ -372,7 +372,7 @@ Queue_t * const pxQueue = xQueue;
 	uint8_t *pucQueueStorage;
 
 		configASSERT( uxQueueLength > ( UBaseType_t ) 0 );
-
+		// 计算队列需要空间
 		if( uxItemSize == ( UBaseType_t ) 0 )
 		{
 			/* There is not going to be a queue storage area. */
@@ -384,7 +384,7 @@ Queue_t * const pxQueue = xQueue;
 			can be in the queue at any time. */
 			xQueueSizeInBytes = ( size_t ) ( uxQueueLength * uxItemSize ); /*lint !e961 MISRA exception as the casts are only redundant for some ports. */
 		}
-
+		// 申请空间
 		/* Allocate the queue and storage area.  Justification for MISRA
 		deviation as follows:  pvPortMalloc() always ensures returned memory
 		blocks are aligned per the requirements of the MCU stack.  In this case
@@ -399,7 +399,7 @@ Queue_t * const pxQueue = xQueue;
 		if( pxNewQueue != NULL )
 		{
 			/* Jump past the queue structure to find the location of the queue
-			storage area. */
+			storage area. 留出队列头空间 */
 			pucQueueStorage = ( uint8_t * ) pxNewQueue;
 			pucQueueStorage += sizeof( Queue_t ); /*lint !e9016 Pointer arithmetic allowed on char types, especially when it assists conveying intent. */
 
@@ -411,7 +411,7 @@ Queue_t * const pxQueue = xQueue;
 				pxNewQueue->ucStaticallyAllocated = pdFALSE;
 			}
 			#endif /* configSUPPORT_STATIC_ALLOCATION */
-
+			// 初始化申请的内存空间为queue
 			prvInitialiseNewQueue( uxQueueLength, uxItemSize, pucQueueStorage, ucQueueType, pxNewQueue );
 		}
 		else
@@ -2051,7 +2051,7 @@ Queue_t * const pxQueue = xQueue;
 		disinherit the priority - but only down to the highest priority of any
 		other tasks that are waiting for the same mutex.  For this purpose,
 		return the priority of the highest priority task that is waiting for the
-		mutex. */
+		mutex. 返回等待该互斥量任务的最高优先级*/
 		if( listCURRENT_LIST_LENGTH( &( pxQueue->xTasksWaitingToReceive ) ) > 0U )
 		{
 			uxHighestPriorityOfWaitingTasks = ( UBaseType_t ) configMAX_PRIORITIES - ( UBaseType_t ) listGET_ITEM_VALUE_OF_HEAD_ENTRY( &( pxQueue->xTasksWaitingToReceive ) );
