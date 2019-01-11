@@ -778,7 +778,7 @@ Queue_t * const pxQueue = xQueue;
 				#if ( configUSE_QUEUE_SETS == 1 )
 				{
 				UBaseType_t uxPreviousMessagesWaiting = pxQueue->uxMessagesWaiting;
-
+					/*此处会还原经过优先级反转的任务*/
 					xYieldRequired = prvCopyDataToQueue( pxQueue, pvItemToQueue, xCopyPosition );
 
 					if( pxQueue->pxQueueSetContainer != NULL )

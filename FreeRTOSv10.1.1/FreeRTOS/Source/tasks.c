@@ -3964,7 +3964,7 @@ TCB_t *pxTCB;
 			( pxTCB->uxMutexesHeld )--;
 
 			/* Has the holder of the mutex inherited the priority of another
-			task? */
+			task? 判断并还原继承的优先级*/
 			if( pxTCB->uxPriority != pxTCB->uxBasePriority )
 			{
 				/* Only disinherit if no other mutexes are held. */
